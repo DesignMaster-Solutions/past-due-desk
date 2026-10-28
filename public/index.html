@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Past Due Desk</title>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@34.3.1/dist/ag-grid-community.min.js" integrity="sha384-1m5FM32cqWvkVPC2kdiP5dLsQUO3OCeEAGgZ4RqzCWlsWcCVIM9HXAjD1A99GPs3" crossorigin="anonymous"></script>
+<style>
+  :root { --ink: #1d2433; --muted: #5b6475; --line: #dfe3ea; --bg: #f6f7f9; --brand: #0b5cad; --ok: #1d7a46; --warn: #a15c00; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: #fff; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 17px; margin: 0; }
+  header span { color: var(--muted); }
+  .bar { display: flex; flex-wrap: nowrap; gap: 8px; margin-left: auto; white-space: nowrap; }
+  button { font: inherit; border: 1px solid var(--line); background: #fff; padding: 7px 12px; border-radius: 6px; cursor: pointer; }
+  button.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+  button:disabled { opacity: .55; cursor: progress; }
+  main { padding: 16px 20px; display: grid; gap: 14px; }
+  .stats { display: flex; gap: 28px; flex-wrap: wrap; }
+  .stats b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .stats small { color: var(--muted); }
+  #grid { height: 300px; }
+  #detail { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-height: 120px; }
+  #detail h2 { font-size: 15px; margin: 0 0 6px; }
+  #detail pre { white-space: pre-wrap; font: inherit; margin: 8px 0 0; }
+  #detail .why { color: var(--muted); }
+  #detail .fix { color: var(--warn); }
+  #err { color: #b00020; }
+  @media (max-width: 640px) { header { flex-wrap: wrap; } .bar { margin-left: 0; } button { padding: 6px 9px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Past Due Desk</h1><span id="biz"></span>
+  <div class="bar">
+    <button id="plan" class="primary">Plan with AI</button>
+    <button id="send">Send approved</button>
+    <button id="sync">Refresh from PayPal</button>
+  </div>
+</header>
+<main>
+  <div class="stats">
+    <div><b id="s-open">-</b><small>overdue</small></div>
+    <div><b id="s-sent">-</b><small>sent as PayPal invoices</small></div>
+    <div><b id="s-paid">-</b><small>collected</small></div>
+    <div><b id="s-owner">-</b><small>need you</small></div>
+  </div>
+  <div id="grid" class="ag-theme-quartz"></div>
+  <div id="detail">Select a row to read the plan and the email the agent wrote.</div>
+  <div id="err"></div>
+</main>
+<script>
+const usd = (v) => v == null ? '' : Number(v).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+const STATUS_COLOR = { PAID: 'var(--ok)', PARTIALLY_PAID: 'var(--ok)', SENT: 'var(--brand)', UNPAID: 'var(--brand)', NEEDS_OWNER: 'var(--warn)' };
+let api;
+const columnDefs = [
+  { field: 'ref', width: 100 },
+  { field: 'customer', flex: 1, minWidth: 170 },
+  { field: 'amount', width: 110, valueFormatter: (p) => usd(p.value) },
+  { field: 'days_overdue', headerName: 'Late (days)', width: 115 },
+  { field: 'strategy', width: 170, valueFormatter: (p) => (p.value || '').replaceAll('_', ' ') },
+  { field: 'discount_pct', headerName: 'Discount %', width: 115 },
+  { field: 'min_partial', headerName: 'Min. first payment', width: 160, valueFormatter: (p) => usd(p.value) },
+  { field: 'status', width: 140, cellStyle: (p) => ({ color: STATUS_COLOR[p.value] || 'inherit', fontWeight: 600 }) },
+  { field: 'paid', width: 100, valueFormatter: (p) => p.value ? usd(p.value) : '' },
+  { headerName: 'Owner', width: 110, cellRenderer: (p) => {
+      const r = p.data;
+      if (r.status === 'NEEDS_OWNER') return 'your call';
+      if (r.status !== 'PLANNED') return r.approved ? 'approved' : '';
+      if (r.approved) return 'approved';
+      const b = document.createElement('button'); b.textContent = 'Approve';
+      b.onclick = (e) => { e.stopPropagation(); act('approve?ref=' + encodeURIComponent(r.ref), b); };
+      return b;
+  } },
+];
+function render(data) {
+  document.getElementById('biz').textContent = data.business;
+  api.setGridOption('rowData', data.rows);
+  const sum = (f) => data.rows.filter(f).reduce((a, r) => a + r.amount, 0);
+  document.getElementById('s-open').textContent = usd(sum(() => true));
+  document.getElementById('s-sent').textContent = usd(sum((r) => !['NEW', 'PLANNED', 'NEEDS_OWNER'].includes(r.status)));
+  document.getElementById('s-paid').textContent = usd(data.rows.reduce((a, r) => a + Number(r.paid || 0), 0));
+  document.getElementById('s-owner').textContent = data.rows.filter((r) => r.status === 'NEEDS_OWNER').length;
+}
+async function act(path, btn) {
+  document.getElementById('err').textContent = '';
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch('/api/' + path, { method: path === 'rows' ? 'GET' : 'POST' });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    render(data);
+  } catch (e) { document.getElementById('err').textContent = e.message; }
+  finally { if (btn) btn.disabled = false; }
+}
+function showDetail(r) {
+  const d = document.getElementById('detail');
+  d.replaceChildren();
+  const h = document.createElement('h2'); h.textContent = `${r.customer} · ${r.strategy.replaceAll('_', ' ') || 'not planned yet'}`;
+  const why = document.createElement('div'); why.className = 'why'; why.textContent = r.reason;
+  d.append(h, why);
+  if (r.corrections) { const f = document.createElement('div'); f.className = 'fix'; f.textContent = 'Policy corrected the AI: ' + r.corrections; d.append(f); }
+  const pre = document.createElement('pre'); pre.textContent = r.message; d.append(pre);
+  if (r.payer_url) { const a = document.createElement('a'); a.href = r.payer_url; a.target = '_blank'; a.textContent = 'Open the PayPal invoice the customer sees'; d.append(a); }
+}
+api = agGrid.createGrid(document.getElementById('grid'), {
+  columnDefs, rowData: [], rowSelection: { mode: 'singleRow', checkboxes: false, enableClickSelection: true },
+  onRowClicked: (e) => showDetail(e.data),
+});
+for (const [id, path] of [['plan', 'plan'], ['send', 'send'], ['sync', 'sync']]) {
+  const b = document.getElementById(id); b.onclick = () => act(path, b);
+}
+act('rows');
+</script>
+</body>
+</html>

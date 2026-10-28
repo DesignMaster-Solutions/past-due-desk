@@ -1,0 +1,14 @@
+{
+  "name": "past-due-desk",
+  "version": "0.1.0",
+  "description": "AI collections desk for small businesses: plans each overdue invoice within the owner's policy and sends it as a PayPal invoice (split payments when it helps).",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/",
+    "start": "node src/server.mjs",
+    "plan": "node src/cli.mjs plan",
+    "send": "node src/cli.mjs send"
+  },
+  "engines": { "node": ">=22" },
+  "license": "MIT"
+}

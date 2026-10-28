@@ -1,0 +1,18 @@
+{
+  "business": "Harbor Lane Web Studio",
+  "note": "Sample books for the demo. Names and emails are fictional; the PayPal side is the sandbox.",
+  "receivables": [
+    { "ref": "HL-1042", "customer": "Maple Street Bakery", "contact_name": "Dana Whitfield", "email": "dana.bakery@example.com",
+      "description": "Website maintenance, August", "amount": 180.00, "currency": "USD", "days_overdue": 12,
+      "history": "Pays every month, usually 5-10 days late. Never disputed." },
+    { "ref": "HL-1037", "customer": "Northside Auto Repair", "contact_name": "Luis Ortega", "email": "luis.northside@example.com",
+      "description": "Online booking page build", "amount": 1450.00, "currency": "USD", "days_overdue": 64,
+      "history": "Replied on day 30: 'slow season, can we do it in parts?'. No payment since. Good relationship for 3 years." },
+    { "ref": "HL-1029", "customer": "Bloom Yoga Collective", "contact_name": "Priya Raman", "email": "priya.bloom@example.com",
+      "description": "Class schedule integration", "amount": 620.00, "currency": "USD", "days_overdue": 91,
+      "history": "Three reminders ignored. Owner says the studio is still open and posting classes on Instagram." },
+    { "ref": "HL-1051", "customer": "Coastal Pet Grooming", "contact_name": "Mark Ellison", "email": "mark.coastal@example.com",
+      "description": "Logo redesign", "amount": 350.00, "currency": "USD", "days_overdue": 20,
+      "history": "Customer emailed: 'the new logo looks nothing like the brief, we are not paying until it is fixed'." }
+  ]
+}
