@@ -16,6 +16,7 @@
   button { font: inherit; border: 1px solid var(--line); background: #fff; padding: 7px 12px; border-radius: 6px; cursor: pointer; }
   button.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
   button:disabled { opacity: .55; cursor: progress; }
+  .ag-cell button { padding: 2px 10px; line-height: 1.4; }
   main { padding: 16px 20px; display: grid; gap: 14px; }
   .stats { display: flex; gap: 28px; flex-wrap: wrap; }
   .stats b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
@@ -64,7 +65,7 @@ const columnDefs = [
   { field: 'min_partial', headerName: 'Min. first payment', width: 160, valueFormatter: (p) => usd(p.value) },
   { field: 'status', width: 140, cellStyle: (p) => ({ color: STATUS_COLOR[p.value] || 'inherit', fontWeight: 600 }) },
   { field: 'paid', width: 100, valueFormatter: (p) => p.value ? usd(p.value) : '' },
-  { headerName: 'Owner', width: 110, cellRenderer: (p) => {
+  { headerName: 'Owner', width: 120, cellRenderer: (p) => {
       const r = p.data;
       if (r.status === 'NEEDS_OWNER') return 'your call';
       if (r.status !== 'PLANNED') return r.approved ? 'approved' : '';

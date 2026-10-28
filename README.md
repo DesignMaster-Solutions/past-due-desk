@@ -11,6 +11,8 @@ hear every month.
 
 ![Dashboard](docs/dashboard.png)
 
+Demo video (1:43): [docs/demo.mp4](docs/demo.mp4). The customer side is PayPal's hosted invoice: [docs/paypal-invoice.png](docs/paypal-invoice.png).
+
 ## Problem
 
 A one-person studio, a bakery, a repair shop: they invoice, some customers pay late, and the owner
