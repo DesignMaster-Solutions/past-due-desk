@@ -1,7 +1,7 @@
 // Dashboard: AG Grid over the receivables, owner approves each plan, PayPal does the collecting.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, rows } from './desk.mjs';
+import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, followUps, rows } from './desk.mjs';
 
 const PORT = Number(process.env.PORT || 8790);
 
@@ -23,6 +23,7 @@ async function handle(req, res) {
   if (url.pathname === '/api/approve') return json(() => approve(url.searchParams.get('ref')));
   if (url.pathname === '/api/send') return json(() => sendApproved(books));
   if (url.pathname === '/api/sync') return json(() => sync());
+  if (url.pathname === '/api/followup') return json(() => followUps(books));
   res.writeHead(404); res.end();
 }
 

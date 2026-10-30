@@ -9,6 +9,8 @@ export const DEFAULT_POLICY = {
   min_partial_ratio: 0.25, // a split plan must collect at least 25% up front
   max_due_in_days: 30,
   discount_only_after_days: 45, // early-stage debts get a nudge, not a discount
+  follow_up_every_days: 7, // an unpaid PayPal invoice gets a reminder this often
+  max_follow_ups: 2, // after that it goes back to the owner instead of nagging
 };
 
 const STRATEGIES = ['friendly_nudge', 'firm_reminder', 'split_payment', 'settlement_discount', 'escalate_to_owner'];

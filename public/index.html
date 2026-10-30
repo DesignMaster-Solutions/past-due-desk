@@ -38,6 +38,7 @@
     <button id="plan" class="primary">Plan with AI</button>
     <button id="send">Send approved</button>
     <button id="sync">Refresh from PayPal</button>
+    <button id="followup">Send follow-ups</button>
   </div>
 </header>
 <main>
@@ -65,6 +66,7 @@ const columnDefs = [
   { field: 'min_partial', headerName: 'Min. first payment', width: 160, valueFormatter: (p) => usd(p.value) },
   { field: 'status', width: 140, cellStyle: (p) => ({ color: STATUS_COLOR[p.value] || 'inherit', fontWeight: 600 }) },
   { field: 'paid', width: 100, valueFormatter: (p) => p.value ? usd(p.value) : '' },
+  { field: 'reminders', headerName: 'Follow-ups', width: 120, valueFormatter: (p) => p.data.follow_up === 'owner' ? 'back to you' : (p.value || '') },
   { headerName: 'Owner', width: 120, cellRenderer: (p) => {
       const r = p.data;
       if (r.status === 'NEEDS_OWNER') return 'your call';
@@ -109,7 +111,7 @@ api = agGrid.createGrid(document.getElementById('grid'), {
   columnDefs, rowData: [], rowSelection: { mode: 'singleRow', checkboxes: false, enableClickSelection: true },
   onRowClicked: (e) => showDetail(e.data),
 });
-for (const [id, path] of [['plan', 'plan'], ['send', 'send'], ['sync', 'sync']]) {
+for (const [id, path] of [['plan', 'plan'], ['send', 'send'], ['sync', 'sync'], ['followup', 'followup']]) {
   const b = document.getElementById(id); b.onclick = () => act(path, b);
 }
 act('rows');

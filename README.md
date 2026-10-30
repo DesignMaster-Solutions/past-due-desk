@@ -33,6 +33,10 @@ the one who asked "can we do it in parts?" needs a plan, the one who disputes th
    item discount, split plans as `partial_payment` with a `minimum_amount_due`, the AI's email as the
    invoice note, then `send`. The customer gets PayPal's hosted invoice and pays with PayPal or card.
 5. **Refresh from PayPal** syncs status (`SENT`, `PARTIALLY_PAID`, `PAID`) and paid amounts back into the grid.
+6. **Follow-ups on schedule.** "Send follow-ups" sends PayPal's own reminder (`/remind`) for every invoice
+   still unpaid after `follow_up_every_days` (default 7, counted from the last reminder), with the agent's
+   email as the note. After `max_follow_ups` (default 2) the account goes back to the owner ("back to you")
+   instead of nagging the customer forever. Paid, cancelled and escalated accounts are never chased.
 
 The ledger is written after every invoice, so a crash never sends the same invoice twice, and an
 account with a live invoice is never re-planned.
@@ -63,13 +67,13 @@ npm start                     # http://localhost:8790
 # Plan with AI -> Approve -> Send approved -> Refresh from PayPal
 ```
 
-CLI equivalent: `npm run plan`, `node src/cli.mjs approve HL-1037`, `npm run send`, `node src/cli.mjs sync`.
+CLI equivalent: `npm run plan`, `node src/cli.mjs approve HL-1037`, `npm run send`, `node src/cli.mjs sync`, `node src/cli.mjs followup`.
 
 AI backend: `LLM_BACKEND=replay` (default, uses the recorded answers for the sample books),
 `LLM_BACKEND=anthropic ANTHROPIC_API_KEY=...`, or `LLM_BACKEND=claude-cli`. Add `RECORD=1` to save new answers.
 Your own books: `BOOKS=path/to/receivables.json` (same shape as `data/receivables.json`).
 
-Tests: `npm test` (policy clamps, escalation, JSON parsing, invoice payload).
+Tests: `npm test` (policy clamps, escalation, JSON parsing, invoice payload, follow-up schedule).
 
 ## Sample run (sandbox, 28 Oct 2026)
 
@@ -77,10 +81,15 @@ Tests: `npm test` (policy clamps, escalation, JSON parsing, invoice payload).
 |---|---|---|---|
 | Maple Street Bakery, $180 | 12 | friendly nudge, due in 7 days | INV2-7XEX-86K6-LHVW-CR45, SENT |
 | Northside Auto Repair, $1,450 | 64 | split payment, first payment at least $375 | INV2-RACQ-9R7U-9UB6-PHYB, SENT, partial payments on |
-| Bloom Yoga Collective, $620 | 91 | settlement discount 10% | INV2-CVB7-UBU8-45R8-P7UM, SENT, $558.00 due |
+| Bloom Yoga Collective, $620 | 91 | settlement discount 10% | INV2-CVB7-UBU8-45R8-P7UM, **PAID $558.00** (sandbox buyer paid the hosted invoice on 30 Oct; Refresh read it back) |
 | Coastal Pet Grooming, $350 | 20 | escalate to owner (customer disputes the logo) | no invoice |
 
 The sample customers are fictional; the invoices are real sandbox objects.
+
+After the payment and a follow-up run (30 Oct 2026): $558 collected, the two unpaid invoices got a PayPal
+reminder each, the paid one was skipped.
+
+![Dashboard after payment and follow-ups](docs/dashboard-paid.png)
 
 ## What it does not do
 
