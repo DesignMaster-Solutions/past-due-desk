@@ -1,9 +1,10 @@
 // Dashboard: AG Grid over the receivables, owner approves each plan, PayPal does the collecting.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, followUps, rows } from './desk.mjs';
+import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, followUps, rows, reset } from './desk.mjs';
 
 const PORT = Number(process.env.PORT || 8790);
+const DEMO = process.env.DEMO === '1'; // shared hosted demo: exposes /api/reset and the banner
 
 async function handle(req, res) {
   const url = new URL(req.url, 'http://x');
@@ -11,7 +12,7 @@ async function handle(req, res) {
   const json = async (fn) => {
     await fn();
     res.writeHead(200, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ business: books.business, rows: rows(books, await loadLedger()) }));
+    res.end(JSON.stringify({ business: books.business, demo: DEMO, rows: rows(books, await loadLedger()) }));
   };
   if (req.method === 'GET' && url.pathname === '/') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
@@ -24,6 +25,7 @@ async function handle(req, res) {
   if (url.pathname === '/api/send') return json(() => sendApproved(books));
   if (url.pathname === '/api/sync') return json(() => sync());
   if (url.pathname === '/api/followup') return json(() => followUps(books));
+  if (DEMO && url.pathname === '/api/reset') return json(() => reset());
   res.writeHead(404); res.end();
 }
 

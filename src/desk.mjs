@@ -28,6 +28,11 @@ export async function planAll(books, opts = {}) {
   return ledger;
 }
 
+// Hosted demo: wipe the ledger so the next judge starts from the sample books (sandbox invoices stay in PayPal).
+export async function reset() {
+  await save({});
+}
+
 export async function approve(ref) {
   const ledger = await loadLedger();
   if (!ledger[ref]) throw new Error(`no plan for ${ref}`);

@@ -28,6 +28,7 @@
   #detail .why { color: var(--muted); }
   #detail .fix { color: var(--warn); }
   #err { color: #b00020; }
+  #demo { margin: 0; color: var(--muted); }
   @media (max-width: 640px) { header { flex-wrap: wrap; } .bar { margin-left: 0; } button { padding: 6px 9px; } }
 </style>
 </head>
@@ -42,6 +43,7 @@
   </div>
 </header>
 <main>
+  <p id="demo" hidden>Shared sandbox demo: the AI replays recorded plans, the invoices are real PayPal sandbox objects, the books are the sample ones. Someone before you may have sent them already: <a href="#" id="reset">start over from the sample books</a>.</p>
   <div class="stats">
     <div><b id="s-open">-</b><small>overdue</small></div>
     <div><b id="s-sent">-</b><small>sent as PayPal invoices</small></div>
@@ -79,6 +81,7 @@ const columnDefs = [
 ];
 function render(data) {
   document.getElementById('biz').textContent = data.business;
+  document.getElementById('demo').hidden = !data.demo;
   api.setGridOption('rowData', data.rows);
   const sum = (f) => data.rows.filter(f).reduce((a, r) => a + r.amount, 0);
   document.getElementById('s-open').textContent = usd(sum(() => true));
@@ -114,6 +117,7 @@ api = agGrid.createGrid(document.getElementById('grid'), {
 for (const [id, path] of [['plan', 'plan'], ['send', 'send'], ['sync', 'sync'], ['followup', 'followup']]) {
   const b = document.getElementById(id); b.onclick = () => act(path, b);
 }
+document.getElementById('reset').onclick = (e) => { e.preventDefault(); act('reset'); };
 act('rows');
 </script>
 </body>

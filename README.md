@@ -13,6 +13,11 @@ hear every month.
 
 Demo video (1:43): [docs/demo.mp4](docs/demo.mp4). The customer side is PayPal's hosted invoice: [docs/paypal-invoice.png](docs/paypal-invoice.png).
 
+**Hosted demo: https://web-production-dff4e.up.railway.app** (no setup, no keys). It runs this exact code against
+the PayPal sandbox with the recorded AI answers: Plan with AI, approve the rows, Send approved, then open the
+invoice the customer sees. The books are shared, so if someone sent them before you, the banner link
+"start over from the sample books" wipes the ledger (the sandbox invoices stay in PayPal) and you get a clean run.
+
 ## Problem
 
 A one-person studio, a bakery, a repair shop: they invoice, some customers pay late, and the owner
@@ -72,6 +77,8 @@ CLI equivalent: `npm run plan`, `node src/cli.mjs approve HL-1037`, `npm run sen
 AI backend: `LLM_BACKEND=replay` (default, uses the recorded answers for the sample books),
 `LLM_BACKEND=anthropic ANTHROPIC_API_KEY=...`, or `LLM_BACKEND=claude-cli`. Add `RECORD=1` to save new answers.
 Your own books: `BOOKS=path/to/receivables.json` (same shape as `data/receivables.json`).
+Hosted/shared demo: `DEMO=1` enables `POST /api/reset` and the "start over" link; the ledger lives in `STATE_FILE`
+(default `state/ledger.json`).
 
 Tests: `npm test` (policy clamps, escalation, JSON parsing, invoice payload, follow-up schedule).
 
