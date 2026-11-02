@@ -1,7 +1,5 @@
 # Past Due Desk
 
-Demo video (v2, Nov 2): https://youtu.be/484UmFS9XJ8
-
 An AI collections desk for small businesses. It reads the overdue invoices in the owner's books,
 decides how to recover each one (a friendly nudge, a firm reminder, a split payment, a settlement
 discount, or "this one needs you"), writes the email, and sends it as a **PayPal invoice** that the
@@ -13,7 +11,7 @@ hear every month.
 
 ![Dashboard](docs/dashboard.png)
 
-Demo video (1:43): [docs/demo.mp4](docs/demo.mp4). The customer side is PayPal's hosted invoice: [docs/paypal-invoice.png](docs/paypal-invoice.png).
+Demo video (1:00): https://youtu.be/484UmFS9XJ8 ([docs/demo.mp4](docs/demo.mp4)). The customer side is PayPal's hosted invoice: [docs/paypal-invoice.png](docs/paypal-invoice.png).
 
 **Hosted demo: https://web-production-dff4e.up.railway.app** (no setup, no keys). It runs this exact code against
 the PayPal sandbox with the recorded AI answers: Plan with AI, approve the rows, Send approved, then open the
