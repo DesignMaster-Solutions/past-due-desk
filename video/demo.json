@@ -1,0 +1,102 @@
+{
+ "brand": "Past Due Desk · PayPal AI Hackathon · Design Master Solutions LLC",
+ "voice": "Samantha",
+ "rate": 182,
+ "bg": "#0f1b2d",
+ "accent": "#0070e0",
+ "out": "../docs/demo.mp4",
+ "scenes": [
+  {
+   "title": "Overdue invoices, a small studio's worst week",
+   "lines": [
+    "Four clients, $2,600 overdue.",
+    "Nobody likes writing",
+    "the reminder."
+   ],
+   "shots": [
+    "shots/1-home.png"
+   ],
+   "say": "A small web studio has four clients and two thousand six hundred dollars overdue. Past Due Desk is an agent that works the list for the owner, through PayPal."
+  },
+  {
+   "title": "Plan with AI: one strategy per client",
+   "lines": [
+    "Friendly nudge, split payment,",
+    "settlement discount, or",
+    "hand it to the owner."
+   ],
+   "shots": [
+    "shots/2-plan.png"
+   ],
+   "say": "Plan with AI reads each client's history and picks a strategy: a friendly nudge, a split payment, a settlement discount, or handing a sensitive case back to the owner."
+  },
+  {
+   "title": "The email it wrote, and why",
+   "lines": [
+    "Northside Auto asked to pay",
+    "in parts: first payment $375,",
+    "the rest on their schedule."
+   ],
+   "shots": [
+    "shots/3-detail.png"
+   ],
+   "say": "Every plan comes with its reasoning and the email. Northside Auto asked to pay in parts, so the agent offers a first payment of three hundred seventy five dollars."
+  },
+  {
+   "title": "Sent as real PayPal invoices",
+   "lines": [
+    "Approved plans become",
+    "PayPal invoices (sandbox)",
+    "with the minimum first payment."
+   ],
+   "shots": [
+    "shots/paypal-invoice.png"
+   ],
+   "say": "Approved plans go out as real PayPal invoices in the sandbox, with partial payment set to the agent's minimum."
+  },
+  {
+   "title": "Paid, synced, followed up",
+   "lines": [
+    "Refresh reads the status back",
+    "from PayPal; follow-ups go out",
+    "on schedule until it is paid."
+   ],
+   "shots": [
+    "shots/dashboard-paid.png"
+   ],
+   "say": "Refresh from PayPal reads the payments back, and scheduled follow-ups keep going until each invoice is paid or the owner takes over."
+  },
+  {
+   "title": "Collections board in AG Studio",
+   "lines": [
+    "Who still owes what,",
+    "what the agent proposed,",
+    "what came back."
+   ],
+   "shots": [
+    "shots/5-board.png"
+   ],
+   "say": "The collections board, built in A G Studio, shows who still owes what, what the agent proposed and what came back."
+  },
+  {
+   "title": "Tested",
+   "lines": [
+    "Try it: web-production-dff4e.up.railway.app"
+   ],
+   "mono_cmd": "npm test",
+   "mono_cwd": "..",
+   "mono_grep": [
+    "✔ escalation never",
+    "✔ invoice payload",
+    "✔ a split plan",
+    "✔ unpaid invoice gets",
+    "✔ paid, cancelled",
+    "✔ GET /board",
+    "✖",
+    "ℹ pass",
+    "ℹ fail"
+   ],
+   "say": "It is tested end to end. Try the hosted demo; start over from the sample books gives every judge a clean desk."
+  }
+ ]
+}

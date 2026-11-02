@@ -1,0 +1,7 @@
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s0.mp4'
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s1.mp4'
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s2.mp4'
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s3.mp4'
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s4.mp4'
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s5.mp4'
+file '/Users/alandebortolo/Dev/DesignMaster-USA/Hackathons/past-due-desk/video/s6.mp4'
