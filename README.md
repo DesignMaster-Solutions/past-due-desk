@@ -18,6 +18,20 @@ the PayPal sandbox with the recorded AI answers: Plan with AI, approve the rows,
 invoice the customer sees. The books are shared, so if someone sent them before you, the banner link
 "start over from the sample books" wipes the ledger (the sandbox invoices stay in PayPal) and you get a clean run.
 
+**Collections board (AG Studio): `/board`** on the same host ([open it](https://web-production-dff4e.up.railway.app/board)).
+One AG Studio report over the desk's live accounts, refreshed from the same `/api/rows` the approval grid uses:
+KPI tiles (still out, came back, share of the plan collected, waiting on you), a plan filter, the custom
+**Who still owes what** widget, the plan mix, back / still out / forgiven by customer, a by-age chart and the accounts grid.
+*Who still owes what* is a custom Studio widget (`studio/src/scoreboard.jsx`): a friendly scoreboard rather than a
+collections report, one line per customer with a track that fills as PayPal reports payments, the plan and the stage
+in plain words, and no red ink. It reads its fields from the report schema, so the plan filter and chart cross filters
+apply to it, and clicking a customer cross-filters the whole board to that account. The theme uses the desk's own
+colors (green = came back, blue = still out, amber = forgiven, in every chart). **Edit board** opens Studio's editor,
+so the owner can move, resize or add widgets without code.
+Source in `studio/` (Vite + React + `ag-studio` 3.0), built into `public/board/` so the desk server itself stays
+dependency-free: `cd studio && npm install && npm run build`. Without a licence key Studio runs as an evaluation
+(watermark); set `VITE_AG_STUDIO_LICENSE` at build time to apply one.
+
 ## Problem
 
 A one-person studio, a bakery, a repair shop: they invoice, some customers pay late, and the owner
