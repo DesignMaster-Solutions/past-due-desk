@@ -43,7 +43,7 @@ export function toAccounts(rows) {
       target,
       recovered,
       stillOwed: r.status === 'PAID' ? 0 : Math.max(0, round2(target - recovered)),
-      forgiven: round2(owed - target),
+      forgiven: r.status === 'PAID' ? round2(owed - target) : 0, // a discount only counts once the customer took it
       progress: target > 0 ? Math.min(1, recovered / target) : 0,
       reminders: r.reminders || 0,
       needsYou: s === 'Needs you' || s === 'Plan ready for you' || r.follow_up === 'owner' ? 1 : 0,

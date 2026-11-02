@@ -17,6 +17,12 @@ test('a settled invoice paid in full owes nothing and shows the forgiven discoun
   assert.equal(a.agingBucket, '90+ days');
 });
 
+test('a settlement only counts as forgiven once the customer pays; before that the discount is just offered', () => {
+  const [a] = toAccounts([row({ amount: 620, days_overdue: 91, strategy: 'settlement_discount', discount_pct: 10, status: 'SENT' })]);
+  assert.equal(a.forgiven, 0);
+  assert.equal(a.stillOwed, 558);
+});
+
 test('a split plan part-paid keeps the rest as still owed', () => {
   const [a] = toAccounts([row({ amount: 1450, days_overdue: 64, strategy: 'split_payment', min_partial: 375, status: 'PARTIALLY_PAID', paid: '375.00' })]);
   assert.equal(a.stillOwed, 1075);
