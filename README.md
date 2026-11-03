@@ -30,7 +30,8 @@ colors (green = came back, blue = still out, amber = forgiven, in every chart). 
 so the owner can move, resize or add widgets without code.
 Source in `studio/` (Vite + React + `ag-studio` 3.0), built into `public/board/` so the desk server itself stays
 dependency-free: `cd studio && npm install && npm run build`. Without a licence key Studio runs as an evaluation
-(watermark); set `VITE_AG_STUDIO_LICENSE` at build time to apply one.
+(watermark). Set `AG_STUDIO_LICENSE` in the server's environment and the desk writes it into `/board` at request
+time, so the key never lands in the repo or the bundle (the hosted demo runs with AG Grid's 45-day trial licence).
 
 ## Problem
 
