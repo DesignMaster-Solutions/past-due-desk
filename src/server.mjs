@@ -11,12 +11,18 @@ const DEMO = process.env.DEMO === '1'; // shared hosted demo: exposes /api/reset
 // served; anything else, including encoded dot segments, is a 404. Big bundles go out gzipped, compressed once.
 const BOARD = new URL('../public/board/', import.meta.url);
 const TYPES = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', svg: 'image/svg+xml', woff2: 'font/woff2' };
+// The AG Studio licence comes from the host's env and is written into the page per request, never into the repo.
+const LICENCE = process.env.AG_STUDIO_LICENSE || '';
 const gz = new Map();
 async function board(req, res, pathname) {
   const rel = pathname.replace(/^\/board\/?/, '') || 'index.html';
   if (!/^(index\.html|assets\/[\w-]+\.(js|css|svg|woff2))$/.test(rel)) { res.writeHead(404); return res.end(); }
   let body;
   try { body = await readFile(new URL(rel, BOARD)); } catch { res.writeHead(404); return res.end(); }
+  if (rel === 'index.html' && LICENCE) {
+    const set = `<script>window.AG_STUDIO_LICENSE=${JSON.stringify(LICENCE).replace(/</g, '\\u003c')}</script>\n  `;
+    body = Buffer.from(String(body).replace('<script', set + '<script'));
+  }
   const headers = { 'content-type': TYPES[rel.split('.').pop()], 'cache-control': rel === 'index.html' ? 'no-cache' : 'public, max-age=31536000, immutable' };
   if (/\bgzip\b/.test(req.headers['accept-encoding'] || '') && body.length > 1024) {
     if (!gz.has(rel)) gz.set(rel, gzipSync(body));

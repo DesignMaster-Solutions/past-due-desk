@@ -102,7 +102,7 @@ function Board() {
       <p className="narrow">The board is laid out for a laptop or a tablet in landscape. On a phone, <a href="/">the desk</a> has the same accounts and every action.</p>
       <main>
         {desk && (
-          <AgStudioProvider licenseKey={import.meta.env.VITE_AG_STUDIO_LICENSE || undefined}>
+          <AgStudioProvider licenseKey={import.meta.env.VITE_AG_STUDIO_LICENSE || window.AG_STUDIO_LICENSE || undefined}>
             <AgStudio
               style={{ height: '100%', width: '100%' }}
               theme={deskTheme}
