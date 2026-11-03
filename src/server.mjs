@@ -1,6 +1,7 @@
 // Dashboard: AG Grid over the receivables, owner approves each plan, PayPal does the collecting.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, followUps, rows, reset } from './desk.mjs';
 
@@ -56,6 +57,10 @@ async function handle(req, res) {
   if (DEMO && url.pathname === '/api/reset') return json(() => reset());
   res.writeHead(404); res.end();
 }
+
+// A redeploy is a fresh container with no ledger file: the shared demo comes up planned by the recorded replay, the way
+// a judge should find it. "Start over" writes {} on purpose, so that stays unplanned.
+if (DEMO && !existsSync(process.env.STATE_FILE || 'state/ledger.json')) await planAll(await loadBooks());
 
 createServer((req, res) => handle(req, res).catch((e) => {
   res.writeHead(500, { 'content-type': 'application/json' });
