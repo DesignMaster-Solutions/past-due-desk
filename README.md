@@ -86,9 +86,13 @@ ships inside the generated PayPal Server SDK. What it changed, concretely:
 - The map also showed what the SDK does not cover (Catalog Products, Invoicing), so the product for the
   plan and the invoice cancel stay on the small fetch client in `src/paypal.mjs`.
 
-Not exercised end to end: a sandbox buyer approving the subscription. The decision for each case is unit
-tested (`test/autopay.test.mjs`); creating the plan and subscription, the idempotent second click, the
-invoice cancel and the 404 on a pending cancel were run against the sandbox on 9 Nov 2026.
+Run end to end against the sandbox on 9 Nov 2026: the sandbox buyer approved the plan for HL-1037
+($1,450.00 in 3 parts) on PayPal, the subscription `I-3JTR2TU003XH` went ACTIVE and collected the first
+part ($483.34) at once, with the next two ($483.33 each) scheduled for 9 Dec and 9 Jan; the next Refresh
+cancelled invoice `INV2-Q2DZ-XJWE-M5XW-Z7F3`, and a second Refresh changed nothing. Not run against the
+sandbox: the customer paying the invoice after approving autopay (the subscription is cancelled and the
+account goes to the owner); that branch is unit tested (`test/autopay.test.mjs`). The idempotent second
+click and the 404 on a pending cancel were also run against the sandbox the same day.
 
 The ledger is written after every invoice, so a crash never sends the same invoice twice, and an
 account with a live invoice is never re-planned.
