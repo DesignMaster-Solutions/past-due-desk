@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
-import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, followUps, rows, reset } from './desk.mjs';
+import { loadBooks, loadLedger, planAll, approve, sendApproved, sync, followUps, rows, reset, offerAutopay } from './desk.mjs';
 import { timeline } from './timeline.mjs';
 
 const PORT = Number(process.env.PORT || 8790);
@@ -70,6 +70,7 @@ async function handle(req, res) {
   if (url.pathname === '/api/approve') return json(() => approve(url.searchParams.get('ref')));
   if (url.pathname === '/api/send') return json(() => sendApproved(books));
   if (url.pathname === '/api/sync') return json(() => sync());
+  if (url.pathname === '/api/autopay') return json(() => offerAutopay(books, url.searchParams.get('ref'), `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}/`));
   if (url.pathname === '/api/followup') return json(() => followUps(books));
   if (DEMO && url.pathname === '/api/reset') return json(() => reset());
   res.writeHead(404); res.end();

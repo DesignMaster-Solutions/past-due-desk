@@ -111,6 +111,13 @@ function showDetail(r) {
   d.append(h, why);
   if (r.corrections) { const f = document.createElement('div'); f.className = 'fix'; f.textContent = 'Policy corrected the AI: ' + r.corrections; d.append(f); }
   const pre = document.createElement('pre'); pre.textContent = r.message; d.append(pre);
+  if (r.autopay_url) { const a = document.createElement('a'); a.href = r.autopay_url; a.target = '_blank'; a.textContent = `Autopay ${r.autopay.replaceAll('_', ' ').toLowerCase()}: the approval page the customer sees`; d.append(a, document.createElement('br')); }
+  else if (r.autopay_parts && ['SENT', 'UNPAID'].includes(r.status)) {
+    const p = r.autopay_parts, b = document.createElement('button');
+    b.textContent = `Offer autopay: ${p.count} monthly parts (${p.first} then ${p.rest} ${p.currency})`;
+    b.onclick = async () => { await act('autopay?ref=' + encodeURIComponent(r.ref), b); api.forEachNode((n) => { if (n.data.ref === r.ref) showDetail(n.data); }); };
+    d.append(b, document.createElement('br'));
+  }
   if (r.payer_url) { const a = document.createElement('a'); a.href = r.payer_url; a.target = '_blank'; a.textContent = 'Open the PayPal invoice the customer sees'; d.append(a); }
 }
 api = agGrid.createGrid(document.getElementById('grid'), {

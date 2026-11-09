@@ -61,6 +61,34 @@ the one who asked "can we do it in parts?" needs a plan, the one who disputes th
    account, the overdue bar, the due date the agent chose (first payment of a split, settlement deadline),
    the reminders the policy will send and the day the account comes back to the owner. The agent drives
    the schedule; the owner reads it. Read-only: approvals stay in the dashboard.
+8. **Autopay for a split.** On a sent split-payment invoice the owner can offer autopay: the debt becomes a
+   PayPal billing plan of equal monthly parts (never below the plan's minimum, the cents add up exactly,
+   and the plan ends after the last part) and the customer approves it once on PayPal. "Refresh from
+   PayPal" then keeps the debt from being collected twice: once the subscription is active the invoice is
+   cancelled, and if the customer pays the invoice instead the offer is withdrawn (and cancelled if it is
+   approved later, with the account handed to the owner).
+
+### Built with APIMatic's PayPal Context Plugin
+
+Autopay (`src/autopay.mjs`) was built with the PayPal Context Plugin from APIMatic
+(`context-plugins/plugin-marketplace`, plugin `paypal` 0.4.1): its TypeScript skills and the SDK map that
+ships inside the generated PayPal Server SDK. What it changed, concretely:
+
+- The plan and subscription calls go through the SDK (`client.subscriptions.createBillingPlan`,
+  `createSubscription`, `getSubscription`, `cancelSubscription`) with field names and enums looked up in
+  `map/operations/subscriptions.md` and the model files it points to, not written from memory.
+- The plugin's workflow asks for a contract sheet before any code (`paypal-plan.md`): duplicate claims,
+  unknown outcomes, cross-operation invariants. That is where the "never collect one debt twice" rule and
+  the ledger claim with a stable `PayPal-Request-Id` come from.
+- Its "smoke every operation against the real credential" step found that the sandbox answers 404 to
+  cancelling a subscription the customer has not approved yet, so a pending offer is withdrawn on our side
+  instead of cancelled.
+- The map also showed what the SDK does not cover (Catalog Products, Invoicing), so the product for the
+  plan and the invoice cancel stay on the small fetch client in `src/paypal.mjs`.
+
+Not exercised end to end: a sandbox buyer approving the subscription. The decision for each case is unit
+tested (`test/autopay.test.mjs`); creating the plan and subscription, the idempotent second click, the
+invoice cancel and the 404 on a pending cancel were run against the sandbox on 9 Nov 2026.
 
 The ledger is written after every invoice, so a crash never sends the same invoice twice, and an
 account with a live invoice is never re-planned.
@@ -71,6 +99,9 @@ account with a live invoice is never re-planned.
 - Invoicing v2: create (`POST /v2/invoicing/invoices`) with item discounts and partial payments,
   send (`/send`), read (`GET`), remind (`/remind`)
 - Hosted payer view (`recipient_view_url`) linked from the dashboard
+- Invoicing v2 cancel (`/cancel`) when autopay takes over
+- Subscriptions v1 through the PayPal Server SDK: billing plan, subscription, read, cancel; Catalog Products
+  (`POST /v1/catalogs/products`) for the plan's product
 
 ## AI used
 
@@ -82,7 +113,7 @@ account with a live invoice is never re-planned.
 
 ## Run it
 
-Requires Node 22+ and one `npm install` (the only runtime dependency is the Bryntum Scheduler trial build behind `/timeline`; AG Grid Community loads from a pinned CDN URL with SRI).
+Requires Node 22+ and one `npm install` (two runtime dependencies: the Bryntum Scheduler trial build behind `/timeline` and the PayPal Server SDK, installed from its GitHub repository and built on install, behind autopay; AG Grid Community loads from a pinned CDN URL with SRI).
 
 ```bash
 # PayPal sandbox app credentials: developer.paypal.com > Apps & Credentials > Sandbox

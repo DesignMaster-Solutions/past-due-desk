@@ -14,6 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@bryntum/scheduler-trial": "^7.3.8"
+    "@bryntum/scheduler-trial": "^7.3.8",
+    "paypal": "github:context-plugins/paypal-typescript-sdk#main"
   }
 }

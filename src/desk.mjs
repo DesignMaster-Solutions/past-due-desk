@@ -1,7 +1,8 @@
 // Shared workflow for the CLI and the dashboard: plan -> owner approves -> PayPal invoice -> sync.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { planFor, DEFAULT_POLICY } from './agent.mjs';
-import { createAndSendInvoice, getInvoice, remind } from './paypal.mjs';
+import { createAndSendInvoice, getInvoice, remind, cancelInvoice } from './paypal.mjs';
+import { installments, createAutopay, autopayStatus, cancelAutopay, autopayAction } from './autopay.mjs';
 
 const STATE = process.env.STATE_FILE || 'state/ledger.json';
 
@@ -57,9 +58,41 @@ export async function sendApproved(books) {
 
 export async function sync() {
   const ledger = await loadLedger();
-  for (const row of Object.values(ledger)) if (row.invoice) row.invoice = await getInvoice(row.invoice.id);
+  for (const row of Object.values(ledger)) {
+    if (!row.invoice) continue;
+    row.invoice = await getInvoice(row.invoice.id);
+    if (!row.autopay?.id) continue;
+    row.autopay.status = await autopayStatus(row.autopay.id);
+    const action = autopayAction(row);
+    if (action === 'cancel_invoice') {
+      await cancelInvoice(row.invoice.id, 'Autopay is set up', 'You approved the payment plan, so this invoice is cancelled. PayPal collects each part automatically.');
+      row.invoice = await getInvoice(row.invoice.id);
+    } else if (action === 'cancel_subscription') {
+      await cancelAutopay(row.autopay.id, 'Paid through the invoice instead');
+      row.autopay.status = await autopayStatus(row.autopay.id);
+      row.follow_up = 'owner'; // both channels were live at once: a human checks what each one collected
+    } else if (action === 'withdraw') row.autopay.withdrawn = true;
+    await save(ledger);
+  }
   await save(ledger);
   return ledger;
+}
+
+// Owner offers the split as autopay: one approval from the customer, then PayPal collects each part.
+export async function offerAutopay(books, ref, returnUrl) {
+  const ledger = await loadLedger();
+  const row = ledger[ref];
+  const debtor = books.receivables.find((d) => d.ref === ref);
+  const parts = debtor && installments(debtor, row?.plan);
+  if (!parts) throw new Error(`${ref}: autopay is only for a split payment plan`);
+  if (!row.invoice || !['SENT', 'UNPAID'].includes(row.invoice.status)) throw new Error(`${ref}: autopay needs a sent invoice with no payment on it yet`);
+  if (row.autopay?.id) return row.autopay;
+  // claim first: the key is in the ledger before PayPal is called, so a second click or a retry reuses it
+  row.autopay = { key: row.autopay?.key || `pdd-${row.invoice.id}`, parts };
+  await save(ledger);
+  Object.assign(row.autopay, await createAutopay(debtor, parts, books.business, row.autopay.key, returnUrl));
+  await save(ledger);
+  return row.autopay;
 }
 
 const DAY = 86400000;
@@ -103,6 +136,7 @@ export function rows(books, ledger) {
       corrections: (r.plan?.corrections || []).join('; '), approved: !!r.approved,
       status: r.invoice?.status || (r.plan ? (r.plan.send_invoice ? 'PLANNED' : 'NEEDS_OWNER') : 'NEW'),
       reminders: (r.reminders || []).length, follow_up: r.follow_up || '',
+      autopay: r.autopay?.status || '', autopay_url: (!r.autopay?.withdrawn && r.autopay?.approve_url) || '', autopay_parts: r.autopay?.id ? null : installments(d, r.plan),
       paid: r.invoice?.paid || null, payer_url: r.invoice?.payer_url || '', message: r.plan?.message || '',
     };
   });

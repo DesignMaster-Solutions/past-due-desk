@@ -17,10 +17,10 @@ export async function token({ clientId = process.env.PAYPAL_CLIENT_ID, secret = 
   return cached.token;
 }
 
-async function call(method, path, body) {
+async function call(method, path, body, headers = {}) {
   const res = await fetch(BASE + path, {
     method,
-    headers: { Authorization: `Bearer ${await token()}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    headers: { Authorization: `Bearer ${await token()}`, 'Content-Type': 'application/json', Prefer: 'return=representation', ...headers },
     body: body ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
@@ -76,6 +76,15 @@ export async function getInvoice(id) {
     paid: json.payments?.paid_amount?.value || '0.00',
     debugId,
   };
+}
+
+export async function cancelInvoice(id, subject, note) {
+  await call('POST', `/v2/invoicing/invoices/${id}/cancel`, { subject, note, send_to_recipient: true });
+}
+
+// Catalog Products is not in the PayPal Server SDK, so the billing plan's product goes through this thin client.
+export async function createProduct(name, requestId) {
+  return (await call('POST', '/v1/catalogs/products', { name: name.slice(0, 127), type: 'SERVICE' }, { 'PayPal-Request-Id': requestId })).json;
 }
 
 export async function remind(id, subject, note) {
