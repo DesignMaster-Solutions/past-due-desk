@@ -82,7 +82,7 @@ account with a live invoice is never re-planned.
 
 ## Run it
 
-Requires Node 22+. No npm install (no dependencies; AG Grid Community loads from a pinned CDN URL with SRI).
+Requires Node 22+ and one `npm install` (the only runtime dependency is the Bryntum Scheduler trial build behind `/timeline`; AG Grid Community loads from a pinned CDN URL with SRI).
 
 ```bash
 # PayPal sandbox app credentials: developer.paypal.com > Apps & Credentials > Sandbox
