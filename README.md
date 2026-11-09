@@ -11,7 +11,7 @@ hear every month.
 
 ![Dashboard](docs/dashboard.png)
 
-Demo video (1:00): https://youtu.be/484UmFS9XJ8 ([docs/demo.mp4](docs/demo.mp4)). The customer side is PayPal's hosted invoice: [docs/paypal-invoice.png](docs/paypal-invoice.png).
+Demo video (1:34): https://youtu.be/RI9QXvxo9jc ([docs/demo.mp4](docs/demo.mp4)). The customer side is PayPal's hosted invoice: [docs/paypal-invoice.png](docs/paypal-invoice.png).
 
 **Hosted demo: https://web-production-dff4e.up.railway.app** (no setup, no keys). It runs this exact code against
 the PayPal sandbox with the recorded AI answers: Plan with AI, approve the rows, Send approved, then open the

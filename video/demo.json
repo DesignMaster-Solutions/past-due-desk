@@ -79,6 +79,37 @@
    "say": "The collections board, built in A G Studio, shows who still owes what, what the agent proposed and what came back."
   },
   {
+   "title": "Collection timeline on a Bryntum Scheduler",
+   "lines": [
+    "One row per account:",
+    "how long it is overdue,",
+    "when the plan comes due,",
+    "reminders, back to owner."
+   ],
+   "shots": [
+    "shots/6-timeline.png"
+   ],
+   "say": "The collection timeline runs on a Bryntum Scheduler. One row per account: how long it has been overdue, the due date the agent chose, the PayPal reminders the policy allows, and the day it goes back to the owner."
+  },
+  {
+   "title": "Autopay for a split, on PayPal Subscriptions",
+   "lines": [
+    "Built with APIMatic's PayPal Context Plugin.",
+    "Sandbox buyer approved: first part collected,",
+    "the invoice cancelled so the debt is charged once."
+   ],
+   "mono": [
+    "$ GET /v1/billing/subscriptions/I-3JTR2TU003XH   (PayPal sandbox)",
+    "status: ACTIVE",
+    "custom_id: HL-1037",
+    "last_payment: 483.34 USD 2026-11-09T20:45:39Z",
+    "cycles_completed: 1   cycles_remaining: 2",
+    "next_billing_time: 2026-12-09T10:00:00Z",
+    "final_payment_time: 2027-01-09T10:00:00Z"
+   ],
+   "say": "When a client asks to pay in parts, the desk offers autopay: a PayPal subscription built with A P I Matic's PayPal Context Plugin. In the sandbox the buyer approved it, PayPal collected the first part, and the desk cancelled the invoice so the debt is never charged twice."
+  },
+  {
    "title": "Tested",
    "lines": [
     "Try it: web-production-dff4e.up.railway.app"
