@@ -57,6 +57,10 @@ the one who asked "can we do it in parts?" needs a plan, the one who disputes th
    still unpaid after `follow_up_every_days` (default 7, counted from the last reminder), with the agent's
    email as the note. After `max_follow_ups` (default 2) the account goes back to the owner ("back to you")
    instead of nagging the customer forever. Paid, cancelled and escalated accounts are never chased.
+7. **Collection timeline.** `/timeline` lays the plan out in time with the Bryntum Scheduler: one row per
+   account, the overdue bar, the due date the agent chose (first payment of a split, settlement deadline),
+   the reminders the policy will send and the day the account comes back to the owner. The agent drives
+   the schedule; the owner reads it. Read-only: approvals stay in the dashboard.
 
 The ledger is written after every invoice, so a crash never sends the same invoice twice, and an
 account with a live invoice is never re-planned.

@@ -9,6 +9,11 @@
     "plan": "node src/cli.mjs plan",
     "send": "node src/cli.mjs send"
   },
-  "engines": { "node": ">=22" },
-  "license": "MIT"
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@bryntum/scheduler-trial": "^7.3.8"
+  }
 }

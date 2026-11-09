@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Past Due Desk: collection timeline</title>
+<link rel="stylesheet" href="/vendor/bryntum/scheduler.css">
+<style>
+  html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: #f6f7f9; color: #1d2733; }
+  header { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-bottom: 1px solid #dfe3e8; background: #fff; flex-wrap: wrap; }
+  h1 { font-size: 18px; margin: 0; }
+  header a { color: #1b5fb4; text-decoration: none; }
+  .legend { display: flex; gap: 12px; margin-left: auto; font-size: 12px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  #scheduler { height: calc(100% - 50px); }
+  .b-sch-event.overdue { background: #c0392b; }
+  .b-sch-event.due, .b-sch-event.planned { background: #1b5fb4; }
+  .b-sch-event.planned { opacity: .6; }
+  .b-sch-event.reminder { background: #e67e22; }
+  .b-sch-event.reminder-planned { background: #e67e22; opacity: .6; }
+  .b-sch-event.owner { background: #6c3483; }
+  .b-sch-event.closed { background: #27ae60; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Past Due Desk</h1>
+  <a href="/">Dashboard</a>
+  <a href="/board">Collections board</a>
+  <span class="legend">
+    <span><i style="background:#c0392b"></i>overdue</span>
+    <span><i style="background:#1b5fb4"></i>invoice due (agent's plan)</span>
+    <span><i style="background:#e67e22"></i>PayPal reminder (policy)</span>
+    <span><i style="background:#6c3483"></i>back to the owner</span>
+    <span><i style="background:#27ae60"></i>closed</span>
+  </span>
+</header>
+<div id="scheduler"></div>
+<script type="module">
+  // Bryntum Scheduler (trial build served from node_modules): one row per account, the agent's plan and the
+  // follow-up policy laid out in time. Read-only: money decisions stay in the dashboard, where the owner approves.
+  import { Scheduler, DateHelper } from '/vendor/bryntum/scheduler.module.js';
+  const data = await (await fetch('/api/timeline')).json();
+  const now = new Date(data.now);
+  new Scheduler({
+    appendTo: 'scheduler',
+    readOnly: true,
+    rowHeight: 44,
+    barMargin: 6,
+    viewPreset: 'weekAndDayLetter',
+    startDate: DateHelper.add(now, -70, 'day'),
+    endDate: DateHelper.add(now, 35, 'day'),
+    columns: [
+      { text: 'Account', field: 'name', width: 190 },
+      { text: 'Owed', field: 'amount', width: 100, align: 'right', renderer: ({ record }) => `${record.currency} ${record.amount.toFixed(2)}` },
+      { text: 'Status', field: 'status', width: 120 },
+    ],
+    resources: data.resources,
+    events: data.events.map((e) => ({ ...e, cls: e.kind })),
+    features: {
+      eventTooltip: { template: ({ eventRecord }) => `<b>${eventRecord.name}</b><br>${DateHelper.format(eventRecord.startDate, 'MMM D, YYYY')}` },
+      timeRanges: { showCurrentTimeLine: true },
+      eventDrag: false, eventResize: false, eventEdit: false,
+    },
+  });
+</script>
+</body>
+</html>
