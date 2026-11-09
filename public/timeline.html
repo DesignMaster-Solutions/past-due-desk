@@ -42,7 +42,7 @@
   import { Scheduler, DateHelper } from '/vendor/bryntum/scheduler.module.js';
   const data = await (await fetch('/api/timeline')).json();
   const now = new Date(data.now);
-  new Scheduler({
+  const scheduler = new Scheduler({
     appendTo: 'scheduler',
     readOnly: true,
     rowHeight: 44,
@@ -63,6 +63,8 @@
       eventDrag: false, eventResize: false, eventEdit: false,
     },
   });
+  // Open on today, centred: the overdue bars end here and the agent's plan starts here.
+  scheduler.scrollToDate(now, { block: 'center', animate: false });
 </script>
 </body>
 </html>
