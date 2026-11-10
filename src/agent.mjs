@@ -13,6 +13,7 @@ export const DEFAULT_POLICY = {
   max_follow_ups: 2, // after that it goes back to the owner instead of nagging
 };
 
+const LINK = /https?:\/\/|www\.|[\w.+-]+@[\w-]+\.[\w.]+|paypal\.me/i;
 const STRATEGIES = ['friendly_nudge', 'firm_reminder', 'split_payment', 'settlement_discount', 'escalate_to_owner'];
 
 export function buildPrompt(debtor, policy, business) {
@@ -59,6 +60,9 @@ export function enforcePolicy(plan, debtor, policy = DEFAULT_POLICY) {
   if (out.min_partial_amount >= debtor.amount) fix('min_partial_amount', 0, 'not a split');
   if (out.due_in_days < 3) fix('due_in_days', 3, 'policy minimum');
   if (out.due_in_days > policy.max_due_in_days) fix('due_in_days', policy.max_due_in_days, 'policy maximum');
+  // The customer pays through PayPal's own invoice link, so the text never needs a link or an address.
+  const linked = ['email_subject', 'message', 'invoice_note'].find((f) => LINK.test(out[f] || ''));
+  if (linked && out.strategy !== 'escalate_to_owner') fix('strategy', 'escalate_to_owner', `link or address in ${linked}`);
   out.send_invoice = out.strategy !== 'escalate_to_owner';
   return out;
 }
